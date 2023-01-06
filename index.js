@@ -17,11 +17,8 @@ connection
     })
 
 app.get("/games", (req, res) => {
-    Games.findAll().then(game => {
-        res.sendStatus(200)
-        res.json(game)
-    }).catch((err) => {
-        res.sendStatus(404)
+    Games.findAll().then(game => {                      
+        res.json(game)        
     })
 })
 
@@ -32,10 +29,7 @@ app.get("/game/:id", (req, res) => {
         var id = parseInt(req.params.id)
 
         Games.findByPk(id).then(game => {
-            res.sendStatus(200)
-            res.json(game)
-        }).catch(erro => {
-            res.sendStatus(404)
+            res.json(game)            
         })
     }
 
@@ -46,15 +40,15 @@ app.post("/game", (req, res) => {
     var { title, price, year } = req.body
 
     if (isNaN(title) && title != undefined && !isNaN(price) && !isNaN(year)) {
-        res.sendStatus(200)
-
         Games.create({
             title: title,
             price: price,
             year: year
+        }).then(() => {
+            res.sendStatus(200)
         })
     } else {
-        res.statusCode = 400       
+        res.sendStatus(400)      
     }
 })
 
@@ -72,8 +66,6 @@ app.delete("/game/:id", (req, res) => {
                     }
                 }).then(() => {
                     res.sendStatus(200)
-                }).catch((erro) => {
-                    res.sendStatus(400)
                 })
             } else {
                 res.sendStatus(400)
