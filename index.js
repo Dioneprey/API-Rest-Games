@@ -5,6 +5,7 @@ const connection = require("./database")
 const cors = require("cors")
 
 const Games = require("./gameDB")
+const Users = require("./usersDB")
 
 app.use(cors())
 
@@ -48,10 +49,10 @@ app.post("/game", (req, res) => {
             price: price,
             year: year
         }).then(() => {
-            res.sendStatus(200)
+            res.status(200)  
         })
     } else {
-        res.sendStatus(400)      
+        res.status(400)        
     }
 })
 
@@ -68,10 +69,10 @@ app.delete("/game/:id", (req, res) => {
                         id: id
                     }
                 }).then(() => {
-                    res.sendStatus(200)
+                    res.status(200)  
                 })
             } else {
-                res.sendStatus(400)
+                res.status(400)  
             }
         })
     }
@@ -80,7 +81,7 @@ app.delete("/game/:id", (req, res) => {
 app.put("/game/:id", (req, res) => {
 
     if (isNaN(req.params.id)) { // Se ID não for um número: Requisição Inválida
-        res.sendStatus(400)
+        res.status(400)  
     } else {
         var id = parseInt(req.params.id)
 
@@ -94,14 +95,39 @@ app.put("/game/:id", (req, res) => {
                             id: id
                         }
                     }).then(() => {
-                        res.sendStatus(200)
+                        res.status(200)  
                     })
             } else {
-                res.sendStatus(404)
+                res.status(404)  
             }
         })
     }
 })
+
+app.post("/auth",(req,res) => {
+    
+    var {email,password} = req.body
+
+    if(email != undefined) {
+        Users.findOne({ where: { email: email}}).then(user =>  {
+            if(user.password == password ) {
+                 res.status(200)
+                res.json(user)
+            } else {
+                res.status(401)                 
+            }            
+        }).catch((err) => {
+            res.status(401)   
+        })
+    } else {
+        res.status(400)  
+        res.json("Email inválido")
+    }
+
+})
+
+
+
 
 app.listen(8080, () => {
     console.log("API RODANDO!")

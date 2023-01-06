@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize')
 const connection = require('./database')
 
-const Games = connection.define("Games", {
+const Games = connection.define("games", {
     title: {
         type: Sequelize.STRING,
         allowNull: false
