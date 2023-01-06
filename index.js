@@ -54,8 +54,7 @@ app.post("/game", (req, res) => {
             year: year
         })
     } else {
-        res.statusCode = 400
-        console.log("Bad request")
+        res.statusCode = 400       
     }
 })
 
