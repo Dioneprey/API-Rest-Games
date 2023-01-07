@@ -3,7 +3,36 @@ const app = express()
 const bodyParser = require("body-parser")
 const connection = require("./database")
 const cors = require("cors")
+const jwt = require("jsonwebtoken")
 
+// JWT 
+
+const JWTSecret = "seilaeissomesmo"
+function auth(req, res, next) {
+    const authToken = req.headers['authorization']
+
+    if(authToken != undefined) {
+
+        const bearer = authToken.split(' ')
+        var token = bearer[1]
+
+        jwt.verify(token, JWTSecret,(err, data)=> {
+            if(err){
+                res.status(401)
+                res.json({err:"Token inválido"})
+            } else {
+                req.token = token
+                req.loggedUser = {id: data.id, email: data.email}
+                next()
+            }
+        })
+    } else{
+        res.status(401)
+        res.json({err: "Token inválido"})
+    }
+}
+
+// DATABASE
 const Games = require("./gameDB")
 const Users = require("./usersDB")
 
@@ -20,26 +49,28 @@ connection
         console.log(err)
     })
 
-app.get("/games", (req, res) => {
-    Games.findAll().then(game => {                      
-        res.json(game)        
+app.get("/games", auth, (req, res) => {
+    Games.findAll().then(game => {  
+        res.status(200)                    
+        res.json({user: req.loggedUser, games: game})        
     })
 })
 
-app.get("/game/:id", (req, res) => {
+app.get("/game/:id", auth, (req, res) => {
     if (isNaN(req.params.id)) {
         res.sendStatus(400)
     } else {
         var id = parseInt(req.params.id)
 
         Games.findByPk(id).then(game => {
+            res.status(200)
             res.json(game)            
         })
     }
 
 })
 
-app.post("/game", (req, res) => {
+app.post("/game", auth, (req, res) => {
 
     var { title, price, year } = req.body
 
@@ -52,11 +83,11 @@ app.post("/game", (req, res) => {
             res.status(200)  
         })
     } else {
-        res.status(400)        
+        res.sendStatus(400)        
     }
 })
 
-app.delete("/game/:id", (req, res) => {
+app.delete("/game/:id", auth, (req, res) => {
     if (isNaN(req.params.id)) {
         res.sendStatus(400)
     } else {
@@ -72,16 +103,16 @@ app.delete("/game/:id", (req, res) => {
                     res.status(200)  
                 })
             } else {
-                res.status(400)  
+                res.sendStatus(400)  
             }
         })
     }
 })
 
-app.put("/game/:id", (req, res) => {
+app.put("/game/:id", auth,(req, res) => {
 
     if (isNaN(req.params.id)) { // Se ID não for um número: Requisição Inválida
-        res.status(400)  
+        res.sendStatus(400)  
     } else {
         var id = parseInt(req.params.id)
 
@@ -98,7 +129,7 @@ app.put("/game/:id", (req, res) => {
                         res.status(200)  
                     })
             } else {
-                res.status(404)  
+                res.sendStatus(404)  
             }
         })
     }
@@ -111,13 +142,25 @@ app.post("/auth",(req,res) => {
     if(email != undefined) {
         Users.findOne({ where: { email: email}}).then(user =>  {
             if(user.password == password ) {
-                 res.status(200)
-                res.json(user)
+
+                jwt.sign({id: user.id, email: user.email}, JWTSecret,{expiresIn:'24h'},(err, token) => {
+                    if(err){
+                        res.status(400)
+                        res.json({err:"Falha interna"})                        
+                    } else {
+                        res.status(200)
+                        res.json({token: token})
+                    }
+                })
             } else {
-                res.status(401)                 
+                res.status(401).send({
+                    erro: "Senha errada"
+                })                
             }            
         }).catch((err) => {
-            res.status(401)   
+            res.status(401).send({
+                erro: "Email inválido"
+            })    
         })
     } else {
         res.status(400)  
