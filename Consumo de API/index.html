@@ -78,16 +78,18 @@
         }).catch(err => {
             console.log(err)
         })
-
+        window.location.reload()
     }
 
     function deleteGame(listItem) {
         var id = listItem.getAttribute("data-id")
         axios.delete("http://localhost:8080/game/"+id,axiosConfig).then(res => {
             alert("Game deletado!")
+            window.location.reload()
         }).catch(err => {
             console.log(err)
         })
+        window.location.reload()
     }
 
     function loadForm(listItem) {
@@ -125,7 +127,7 @@
         }).catch(err => {
             console.log(err)
         })
-
+        window.location.reload()
     }
 
 

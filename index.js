@@ -50,9 +50,9 @@ connection
     })
 
 app.get("/games", auth, (req, res) => {
+    
     Games.findAll().then(game => {  
-        res.status(200)                    
-        res.json(game)        
+        res.status(200).json(game)        
     })
 })
 
@@ -80,7 +80,7 @@ app.post("/game", auth, (req, res) => {
             price: price,
             year: year
         }).then(() => {
-            res.status(200)  
+            res.sendStatus(200)  
         })
     } else {
         res.sendStatus(400)        
@@ -100,10 +100,10 @@ app.delete("/game/:id", auth, (req, res) => {
                         id: id
                     }
                 }).then(() => {
-                    res.status(200)  
+                    res.sendStatus(200)  
                 })
             } else {
-                res.sendStatus(400)  
+                res.sendStatus(404)  
             }
         })
     }
@@ -126,7 +126,7 @@ app.put("/game/:id", auth,(req, res) => {
                             id: id
                         }
                     }).then(() => {
-                        res.status(200)  
+                        res.sendStatus(200)  
                     })
             } else {
                 res.sendStatus(404)  
@@ -154,12 +154,12 @@ app.post("/auth",(req,res) => {
                 })
             } else {
                 res.status(401).send({
-                    erro: "Senha errada"
+                    error: "Credenciais inválidas"
                 })                
             }            
         }).catch((err) => {
             res.status(401).send({
-                erro: "Email inválido"
+                erro: "Credenciais inválidas"
             })    
         })
     } else {

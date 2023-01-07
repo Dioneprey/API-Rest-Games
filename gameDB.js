@@ -11,7 +11,9 @@ const Games = connection.define("games", {
     },price: {
         type: Sequelize.INTEGER,
         allowNull: false
-    } 
+    }        
+},{ 
+    timestamps: false,
 })
 
 
